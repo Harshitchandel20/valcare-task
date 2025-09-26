@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Lot Reservation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .api-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        .json-response {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .error {
+            color: #dc3545;
+        }
+        .success {
+            color: #198754;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Parking Lot Reservation System</h1>
+        
+        <!-- Floor Management -->
+        <div class="api-section">
+            <h2>Floor Management</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Create Floor</h4>
+                    <form id="createFloorForm">
+                        <div class="mb-3">
+                            <label for="floorNumber" class="form-label">Floor Number</label>
+                            <input type="number" class="form-control" id="floorNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="floorName" class="form-label">Floor Name</label>
+                            <input type="text" class="form-control" id="floorName" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Floor</button>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <h4>Get All Floors</h4>
+                    <button class="btn btn-info" onclick="getAllFloors()">Get Floors</button>
+                </div>
+            </div>
+            <div class="mt-3">
+                <h5>Response:</h5>
+                <div id="floorResponse" class="json-response"></div>
+            </div>
+        </div>
+
+        <!-- Parking Slot Management -->
+        <div class="api-section">
+            <h2>Parking Slot Management</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Create Parking Slot</h4>
+                    <form id="createSlotForm">
+                        <div class="mb-3">
+                            <label for="slotFloorId" class="form-label">Floor ID</label>
+                            <input type="number" class="form-control" id="slotFloorId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="slotNumber" class="form-label">Slot Number</label>
+                            <input type="text" class="form-control" id="slotNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="vehicleType" class="form-label">Vehicle Type</label>
+                            <select class="form-control" id="vehicleType" required>
+                                <option value="">Select Vehicle Type</option>
+                                <option value="TWO_WHEELER">Two Wheeler</option>
+                                <option value="FOUR_WHEELER">Four Wheeler</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Slot</button>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <h4>Get All Slots</h4>
+                    <button class="btn btn-info" onclick="getAllSlots()">Get Slots</button>
+                </div>
+            </div>
+            <div class="mt-3">
+                <h5>Response:</h5>
+                <div id="slotResponse" class="json-response"></div>
+            </div>
+        </div>
+
+        <!-- Reservation Management -->
+        <div class="api-section">
+            <h2>Reservation Management</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Create Reservation</h4>
+                    <form id="createReservationForm">
+                        <div class="mb-3">
+                            <label for="reservationSlotId" class="form-label">Parking Slot ID</label>
+                            <input type="number" class="form-control" id="reservationSlotId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="vehicleNumber" class="form-label">Vehicle Number (XX00XX0000)</label>
+                            <input type="text" class="form-control" id="vehicleNumber" pattern="^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$" placeholder="KA05MH1234" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reservationVehicleType" class="form-label">Vehicle Type</label>
+                            <select class="form-control" id="reservationVehicleType" required>
+                                <option value="">Select Vehicle Type</option>
+                                <option value="TWO_WHEELER">Two Wheeler</option>
+                                <option value="FOUR_WHEELER">Four Wheeler</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="startTime" class="form-label">Start Time</label>
+                            <input type="datetime-local" class="form-control" id="startTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="endTime" class="form-label">End Time</label>
+                            <input type="datetime-local" class="form-control" id="endTime" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Reserve Slot</button>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <h4>Get Reservations</h4>
+                    <button class="btn btn-info mb-2" onclick="getAllReservations()">Get All Reservations</button><br>
+                    <button class="btn btn-warning mb-2" onclick="getActiveReservations()">Get Active Reservations</button><br>
+                    <div class="mt-3">
+                        <h5>Cancel Reservation</h5>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="cancelReservationId" placeholder="Reservation ID">
+                            <button class="btn btn-danger" onclick="cancelReservation()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <h5>Response:</h5>
+                <div id="reservationResponse" class="json-response"></div>
+            </div>
+        </div>
+
+        <!-- Availability Check -->
+        <div class="api-section">
+            <h2>Check Availability</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Check Available Slots</h4>
+                    <form id="checkAvailabilityForm">
+                        <div class="mb-3">
+                            <label for="availabilityStartTime" class="form-label">Start Time</label>
+                            <input type="datetime-local" class="form-control" id="availabilityStartTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="availabilityEndTime" class="form-label">End Time</label>
+                            <input type="datetime-local" class="form-control" id="availabilityEndTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="availabilityVehicleType" class="form-label">Vehicle Type (Optional)</label>
+                            <select class="form-control" id="availabilityVehicleType">
+                                <option value="">All Types</option>
+                                <option value="TWO_WHEELER">Two Wheeler</option>
+                                <option value="FOUR_WHEELER">Four Wheeler</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Check Availability</button>
+                    </form>
+                </div>
+            </div>
+            <div class="mt-3">
+                <h5>Response:</h5>
+                <div id="availabilityResponse" class="json-response"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+
+        // Set default times to future dates
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const startTime = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
+            const endTime = new Date(now.getTime() + 3 * 60 * 60 * 1000); // 3 hours from now
+            
+            document.getElementById('startTime').value = formatDateTimeLocal(startTime);
+            document.getElementById('endTime').value = formatDateTimeLocal(endTime);
+            document.getElementById('availabilityStartTime').value = formatDateTimeLocal(startTime);
+            document.getElementById('availabilityEndTime').value = formatDateTimeLocal(endTime);
+        });
+
+        function formatDateTimeLocal(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        // Floor Management
+        document.getElementById('createFloorForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                floorNumber: parseInt(document.getElementById('floorNumber').value),
+                floorName: document.getElementById('floorName').value
+            };
+            await apiCall('POST', '/floors', data, 'floorResponse');
+        });
+
+        async function getAllFloors() {
+            await apiCall('GET', '/floors', null, 'floorResponse');
+        }
+
+        // Parking Slot Management
+        document.getElementById('createSlotForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                floorId: parseInt(document.getElementById('slotFloorId').value),
+                slotNumber: document.getElementById('slotNumber').value,
+                vehicleType: document.getElementById('vehicleType').value
+            };
+            await apiCall('POST', '/slots', data, 'slotResponse');
+        });
+
+        async function getAllSlots() {
+            await apiCall('GET', '/slots', null, 'slotResponse');
+        }
+
+        // Reservation Management
+        document.getElementById('createReservationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                parkingSlotId: parseInt(document.getElementById('reservationSlotId').value),
+                vehicleNumber: document.getElementById('vehicleNumber').value,
+                vehicleType: document.getElementById('reservationVehicleType').value,
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value
+            };
+            await apiCall('POST', '/reservations/reserve', data, 'reservationResponse');
+        });
+
+        async function getAllReservations() {
+            await apiCall('GET', '/reservations', null, 'reservationResponse');
+        }
+
+        async function getActiveReservations() {
+            await apiCall('GET', '/reservations/active', null, 'reservationResponse');
+        }
+
+        async function cancelReservation() {
+            const reservationId = document.getElementById('cancelReservationId').value;
+            if (reservationId) {
+                await apiCall('DELETE', `/reservations/${reservationId}`, null, 'reservationResponse');
+            }
+        }
+
+        // Availability Check
+        document.getElementById('checkAvailabilityForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                startTime: document.getElementById('availabilityStartTime').value,
+                endTime: document.getElementById('availabilityEndTime').value
+            };
+            const vehicleType = document.getElementById('availabilityVehicleType').value;
+            if (vehicleType) {
+                data.vehicleType = vehicleType;
+            }
+            await apiCall('POST', '/availability', data, 'availabilityResponse');
+        });
+
+        // Generic API call function
+        async function apiCall(method, endpoint, data, responseElementId) {
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                const response = await fetch(API_BASE_URL + endpoint, options);
+                const responseData = await response.text();
+
+                let parsedData;
+                try {
+                    parsedData = JSON.parse(responseData);
+                } catch (e) {
+                    parsedData = responseData;
+                }
+
+                const responseElement = document.getElementById(responseElementId);
+                if (response.ok) {
+                    responseElement.className = 'json-response success';
+                    responseElement.textContent = JSON.stringify(parsedData, null, 2);
+                } else {
+                    responseElement.className = 'json-response error';
+                    responseElement.textContent = `Error ${response.status}: ${JSON.stringify(parsedData, null, 2)}`;
+                }
+            } catch (error) {
+                const responseElement = document.getElementById(responseElementId);
+                responseElement.className = 'json-response error';
+                responseElement.textContent = `Network Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
